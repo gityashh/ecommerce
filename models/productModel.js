@@ -47,9 +47,14 @@ const productSchema = new mongoose.Schema({
     ratings: [
         {
             star: Number,
-            postedBy: { type: String, required: true },
+            comment: String,
+            postedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         },
     ],
+    totalrating: {
+        type: String,
+        default: 0,
+    },
 }, { timestamps: true });
 
 module.exports = mongoose.model("Product", productSchema);
