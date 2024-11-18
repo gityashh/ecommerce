@@ -6,4 +6,12 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-module.exports = cloudinary;
+const uploader = async (path) => {
+    return new Promise((resolve, reject) => {
+        cloudinary.uploader.upload(path, (result) => {
+            resolve({ url: result.url, asset_id: result.asset_id, public_id: result.public_id });
+        });
+    });
+};
+
+module.exports = { cloudinary, uploader };
