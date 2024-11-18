@@ -19,10 +19,8 @@ router.post("/wishlist", authMiddleware, addToWishlist);
 router.put(
   "/upload/:id",
   authMiddleware,
-  isAdmin,
   uploadPhoto.array("images", 10),
-  productImageResize,
-  uploadImage,
+  uploadImage
 );
 router.get("/:id", getaProduct);
 router.put("/:id", authMiddleware, isAdmin, updateProduct);

@@ -2,7 +2,7 @@ const multer = require("multer");
 const sharp = require("sharp");
 const path = require("path");
 
-const upload = multer({
+const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(__dirname, "../public/images"));
   },
@@ -49,7 +49,7 @@ const productImageResize = async (req, res, next) => {
 };
 
 const uploadPhoto = multer({
-  storage: upload,
+  storage: storage,
   fileFilter: multerFilter,
   limits: { fileSize: 2000000 },
 });
