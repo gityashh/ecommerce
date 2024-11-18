@@ -29,8 +29,19 @@ const updateCoupon = asyncHandler(async (req, res) => {
     }
 });
 
+const deleteCoupon = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    try {
+        await Coupon.findByIdAndDelete(id);
+        res.json({ message: "Coupon deleted successfully" });
+    } catch (error) {
+        throw new Error(error);
+    }
+});
+
 module.exports = {
     createCoupon,
     getAllCoupons,
     updateCoupon,
+    deleteCoupon,
 };
