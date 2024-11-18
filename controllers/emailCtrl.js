@@ -19,6 +19,9 @@ const sendEmail = asyncHandler(async (data, req, res) => {
         text: data.text, // plain text body
         html: data.html, // html body
     });
+
+    console.log("message sent to", info.messageId);
+    console.log("preview", nodemailer.getTestMessageUrl(info));
 });
 
 module.exports = { sendEmail };

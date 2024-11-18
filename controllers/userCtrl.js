@@ -4,6 +4,9 @@ const { generateToken } = require("../config/jwtToken");
 const validateMongodbId = require("../utils/validateMongodb");
 const { generateRefreshToken } = require("../config/refreshToken");
 const jwt = require("jsonwebtoken");
+const {sendEmail} = require("./emailCtrl");
+const crypto = require("crypto");
+
 
 const createUser = asyncHandler(async (req, res) => {
   const email = req.body.email;
@@ -174,7 +177,46 @@ const updatePassword = asyncHandler(async (req, res) => {
     }
 });
 
-const forgotPasswordToken = asyncHandler(async (req, res) => { });
+const forgotPasswordToken = asyncHandler(async (req, res) => { 
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) throw new Error("User not found");
+    try {
+        const resetToken = await user.createPasswordResetToken();
+        await user.save();
+        const resetUrl = `Please click on the following link to reset your password: <a href="${process.env.FRONTEND_URL}/${resetToken}">Reset Password</a>`;
+        const data = ({
+            to: user.email,
+            subject: "Forgot Password Link",
+            text: "hey user, please click on the link to reset your password",
+            html: resetUrl,
+        });
+        sendEmail(data);
+        res.json({ message: "Password reset email sent to your email",resetToken });
+    } catch (error) {
+        throw new Error(error);
+    }
+});
+ 
+// reset password
+
+const resetPassword = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+  const resetPasswordToken = crypto.createHash("sha256").update(token).digest("hex");
+  const user = await User.findOne({
+    passwordResetToken: resetPasswordToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+  if (!user) throw new Error("Invalid or expired token");
+  user.password = password;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+  res.json(user);
+});
+
+ 
 
 module.exports = {
     createUser,
@@ -189,4 +231,5 @@ module.exports = {
     logout,
     updatePassword,
     forgotPasswordToken,
+    resetPassword,
 }; 
