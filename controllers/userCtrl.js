@@ -271,6 +271,32 @@ const resetPassword = asyncHandler(async (req, res) => {
   res.json(user);
 });
 
+const getWishlist = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  validateMongodbId(_id);
+  try {
+    const user = await User.findById(_id).populate("wishlist");
+    res.json(user);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+const saveAddress = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  validateMongodbId(_id);
+  try {
+    const user = await User.findByIdAndUpdate(
+      _id,
+      { address: req.body.address },
+      { new: true }
+    );
+    res.json(user);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
 module.exports = {
   createUser,
   loginUserCtrl,
@@ -286,4 +312,6 @@ module.exports = {
   forgotPasswordToken,
   resetPassword,
   loginAdmin,
+  getWishlist,
+  saveAddress,
 };
