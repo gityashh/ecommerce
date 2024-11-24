@@ -3,7 +3,7 @@ const User = require("../models/userModel");
 const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
 const validateMongoDbId = require("../utils/validateMongodb");
-
+const fs = require("fs");
 // create blog
 
 const createBlog = asyncHandler(async (req, res) => {
@@ -188,6 +188,7 @@ const uploadImage = asyncHandler(async (req, res) => {
       const { path } = file;
       const newpath = await uploader(path); // Upload file and get the URL
       urls.push(newpath); // Push uploaded file URL to the array
+      fs.unlinkSync(path);
     }
 
     const blog = await Blog.findByIdAndUpdate(

@@ -4,6 +4,7 @@ const slugify = require("slugify");
 const User = require("../models/userModel");
 const validateMongodbId = require("../utils/validateMongodb");
 const { uploader, cloudinary } = require("../config/cloudinaryConfig");
+const fs = require("fs");
 // create product
 const createProduct = asyncHandler(async (req, res) => {
   try {
@@ -214,6 +215,7 @@ const uploadImage = asyncHandler(async (req, res) => {
       const { path } = file;
       const newpath = await uploader(path); // Upload file and get the URL
       urls.push(newpath); // Push uploaded file URL to the array
+      fs.unlinkSync(path);
     }
 
     const product = await Product.findByIdAndUpdate(
