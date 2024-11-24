@@ -311,7 +311,7 @@ const userCart = asyncHandler(async (req, res) => {
     const user = await User.findById(_id);
     const cartExist = await Cart.findOne({ orderby: user?._id });
     if (cartExist) {
-      cartExist.remove();
+      await Cart.deleteOne({ _id: cartExist._id }); // Use deleteOne instead of remove
     }
     let products = [];
     for (let i = 0; i < cart.length; i++) {
@@ -352,6 +352,13 @@ const getUserCart = asyncHandler(async (req, res) => {
   } catch (error) {
     throw new Error(error);
   }
+});
+
+const emptyCart = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  validateMongodbId(_id);
+  await Cart.deleteOne({ orderby: _id });
+  res.json({ message: "Cart emptied successfully" });
 });
 
 module.exports = {
