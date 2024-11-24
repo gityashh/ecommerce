@@ -171,6 +171,38 @@ const dislikeBlog = asyncHandler(async (req, res) => {
   }
 });
 
+// upload product images
+const uploadImage = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  validateMongodbId(id);
+  try {
+    // Assuming `uploader` is a utility function for uploading images
+    const uploader = async (path) => {
+      // Replace this with the actual implementation for your uploader
+      return await cloudinary.uploader.upload(path, { folder: "images" });
+    };
+
+    const urls = [];
+    const files = req.files;
+    for (const file of files) {
+      const { path } = file;
+      const newpath = await uploader(path); // Upload file and get the URL
+      urls.push(newpath); // Push uploaded file URL to the array
+    }
+
+    const blog = await Blog.findByIdAndUpdate(
+      id,
+      {
+        images: urls.map((file) => file), // Map and save the URLs to the product
+      },
+      { new: true } // Return the updated document
+    );
+    res.json(blog);
+  } catch (error) {
+    throw new Error(error.message || "Failed to upload image");
+  }
+});
+
 module.exports = {
   createBlog,
   updateBlog,
@@ -179,4 +211,5 @@ module.exports = {
   deleteBlog,
   likeBlog,
   dislikeBlog,
+  uploadImage,
 };

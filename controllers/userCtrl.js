@@ -6,9 +6,12 @@ const { generateRefreshToken } = require("../config/refreshToken");
 const jwt = require("jsonwebtoken");
 const { sendEmail } = require("./emailCtrl");
 const crypto = require("crypto");
+const { log } = require("console");
+const cookieParser = require("cookie-parser");
 
 const createUser = asyncHandler(async (req, res) => {
   const email = req.body.email;
+  console.log(email);
   const findUser = await User.findOne({ email: email });
   if (!findUser) {
     const newUser = await User.create(req.body);
@@ -41,6 +44,7 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
       lastName: findUser?.lastName,
       email: findUser?.email,
       token: generateToken(findUser?._id),
+      wishlist: findUser?.wishlist,
     });
   } else {
     throw new Error("Invalid Email or Password");
