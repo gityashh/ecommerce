@@ -301,6 +301,8 @@ const saveAddress = asyncHandler(async (req, res) => {
   }
 });
 
+const userCart = asyncHandler(async (req, res) => { });
+
 module.exports = {
   createUser,
   loginUserCtrl,
@@ -318,4 +320,5 @@ module.exports = {
   loginAdmin,
   getWishlist,
   saveAddress,
+  userCart,
 };
