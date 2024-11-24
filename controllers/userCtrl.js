@@ -8,6 +8,8 @@ const { sendEmail } = require("./emailCtrl");
 const crypto = require("crypto");
 const { log } = require("console");
 const cookieParser = require("cookie-parser");
+const Cart = require("../models/cartModel");
+const Product = require("../models/productModel");
 
 const createUser = asyncHandler(async (req, res) => {
   const email = req.body.email;
@@ -301,7 +303,56 @@ const saveAddress = asyncHandler(async (req, res) => {
   }
 });
 
-const userCart = asyncHandler(async (req, res) => { });
+const userCart = asyncHandler(async (req, res) => {
+  const { cart } = req.body;
+  const { _id } = req.user;
+  validateMongodbId(_id);
+  try {
+    const user = await User.findById(_id);
+    const cartExist = await Cart.findOne({ orderby: user?._id });
+    if (cartExist) {
+      cartExist.remove();
+    }
+    let products = [];
+    for (let i = 0; i < cart.length; i++) {
+      let object = {};
+      object.product = cart[i]._id;
+      object.count = cart[i].count;
+      object.color = cart[i].color;
+      let price = await Product.findById(cart[i]._id).select("price").exec();
+      object.price = price.price;
+      products.push(object);
+    }
+    let cartTotal = 0;
+    for (let i = 0; i < products.length; i++) {
+      cartTotal += products[i].price * products[i].count;
+    }
+    console.log(products);
+    let newCart = await new Cart({
+      products: products,
+      cartTotal: cartTotal,
+      orderby: user?._id,
+    }).save();
+    res.json(newCart);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+// get user cart
+
+const getUserCart = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  validateMongodbId(_id);
+  try {
+    const cart = await Cart.findOne({ orderby: _id }).populate(
+      "products.product"
+    );
+    res.json(cart);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
 
 module.exports = {
   createUser,
@@ -321,4 +372,5 @@ module.exports = {
   getWishlist,
   saveAddress,
   userCart,
+  getUserCart,
 };
