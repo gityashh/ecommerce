@@ -380,4 +380,5 @@ module.exports = {
   saveAddress,
   userCart,
   getUserCart,
+  emptyCart,
 };
