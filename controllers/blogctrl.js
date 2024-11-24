@@ -3,6 +3,7 @@ const User = require("../models/userModel");
 const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
 const validateMongoDbId = require("../utils/validateMongodb");
+const cloudinary = require("cloudinary");
 const fs = require("fs");
 // create blog
 
@@ -174,7 +175,7 @@ const dislikeBlog = asyncHandler(async (req, res) => {
 // upload product images
 const uploadImage = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  validateMongodbId(id);
+  validateMongoDbId(id);
   try {
     // Assuming `uploader` is a utility function for uploading images
     const uploader = async (path) => {
