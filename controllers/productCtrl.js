@@ -3,8 +3,9 @@ const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
 const User = require("../models/userModel");
 const validateMongodbId = require("../utils/validateMongodb");
-const { uploader, cloudinary } = require("../config/cloudinaryConfig");
+const { cloudinaryUploadImage, cloudinaryDeleteImage } = require("../config/cloudinaryConfig");
 const fs = require("fs");
+const path = require("path");
 // create product
 const createProduct = asyncHandler(async (req, res) => {
   try {
@@ -199,16 +200,9 @@ const rating = asyncHandler(async (req, res) => {
 
 // upload product images
 const uploadImage = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  validateMongodbId(id);
-  console.log(req.files);
   try {
     // Assuming `uploader` is a utility function for uploading images
-    const uploader = async (path) => {
-      // Replace this with the actual implementation for your uploader
-      return await cloudinary.uploader.upload(path, { folder: "images" });
-    };
-
+    const uploader = (path) => cloudinaryUploadImage(path, "images");
     const urls = [];
     const files = req.files;
     for (const file of files) {
@@ -218,20 +212,25 @@ const uploadImage = asyncHandler(async (req, res) => {
       fs.unlinkSync(path);
     }
 
-    const product = await Product.findByIdAndUpdate(
-      id,
-      {
-        images: urls.map((file) => file), // Map and save the URLs to the product
-      },
-      { new: true } // Return the updated document
-    );
-    res.json(product);
+    const images = urls.map((file) => {
+      return file;
+    });
+    res.json(images);
   } catch (error) {
     throw new Error(error.message || "Failed to upload image");
   }
 });
 
-
+// delete product images
+const deleteProductImage = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  try {
+    const deleted = await cloudinaryDeleteImage(id, "images");
+    res.json({ message: "Image deleted successfully", deleted });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
 
 module.exports = {
   createProduct,
@@ -242,4 +241,5 @@ module.exports = {
   addToWishlist,
   rating,
   uploadImage,
+  deleteProductImage,
 };

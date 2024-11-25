@@ -51,6 +51,12 @@ const productImageResize = async (req, res, next) => {
   next();
 };
 
+const deleteImage = async (id, folder) => {
+  await cloudinary.uploader.destroy(id, (result) => {
+    console.log(result);
+  });
+};
+
 const uploadPhoto = multer({
   storage: storage,
   fileFilter: multerFilter,
