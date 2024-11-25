@@ -1,22 +1,13 @@
 const asyncHandler = require("express-async-handler");
-const cloudinary = require("cloudinary");
+const cloudinaryUploadImage = require("../config/cloudinaryConfig");
+const cloudinaryDeleteImage = require("../config/cloudinaryConfig");
 const fs = require("fs");
-const { validateMongodbId } = require("../utils/validateMongodbId");
-const Product = require("../models/productModel");
-const { deleteImage } = require("../middlewares/uploadImage");
 
 // upload product images
 const uploadImage = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    validateMongodbId(id);
-    console.log(req.files);
     try {
       // Assuming `uploader` is a utility function for uploading images
-      const uploader = async (path) => {
-        // Replace this with the actual implementation for your uploader
-        return await cloudinary.uploader.upload(path, { folder: "images" });
-      };
-  
+      const uploader = (path) => cloudinaryUploadImage(path, "images");
       const urls = [];
       const files = req.files;
       for (const file of files) {
@@ -26,31 +17,25 @@ const uploadImage = asyncHandler(async (req, res) => {
         fs.unlinkSync(path);
       }
   
-      const product = await Product.findByIdAndUpdate(
-        id,
-        {
-          images: urls.map((file) => file), // Map and save the URLs to the product
-        },
-        { new: true } // Return the updated document
-      );
-      res.json(product);
+      const images = urls.map((file) => {
+        return file;
+      });
+      res.json(images);
     } catch (error) {
       throw new Error(error.message || "Failed to upload image");
     }
-});
-
-const deleteUploaded = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-    validateMongodbId(id);
-  try {
-    const deleted = await deleteImage(id, "images");
-    res.json(deleted);
-  } catch (error) {
-        throw new Error(error);
+  });
+  
+  // delete product images
+  const deleteProductImage = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    try {
+      const deleted = await cloudinaryDeleteImage(id, "images");
+      res.json({ message: "Image deleted successfully", deleted });
+    } catch (error) {
+      throw new Error(error);
     }
-});
+  });
 
-module.exports = {
-  uploadImage,
-  deleteUploaded,
-};
+module.exports = { uploadImage, deleteProductImage };
+  
