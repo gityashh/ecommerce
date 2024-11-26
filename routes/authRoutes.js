@@ -24,6 +24,7 @@ const {
   createOrder,
   getOrders,
   updateOrderStatus,
+  getOrder,
 } = require("../controllers/userCtrl");
 const { authMiddleware, isAdmin } = require("../middlewares/AuthMiddleware");
 
@@ -40,6 +41,7 @@ router.delete("/cart", authMiddleware, emptyCart);
 router.post("/cart/apply-coupon", authMiddleware, applyCoupon);
 router.post("/cart/cash-order", authMiddleware, createOrder);
 router.get("/get-orders", authMiddleware, getOrders);
+router.get("/get-order/:id", authMiddleware, getOrder);
 router.put("/update-order/:id", authMiddleware, isAdmin, updateOrderStatus);
 router.post("/reset-password/:token", resetPassword);
 router.post("/forgot-password-token", forgotPasswordToken);

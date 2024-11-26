@@ -14,7 +14,7 @@ const cloudinaryUploadImage = async (path) => {
         resolve({
           url: result.url,
           asset_id: result.asset_id,
-          public_id: result.public_id,
+            public_id: result.public_id,
         });
       },
       {

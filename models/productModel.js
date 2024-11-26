@@ -38,7 +38,10 @@ const productSchema = new mongoose.Schema({
         select: false,
     },
     images: [],
-    color: [],
+    color: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Color",
+    }],
     tags: [],
     ratings: [
         {

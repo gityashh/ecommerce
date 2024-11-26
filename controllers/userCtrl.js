@@ -467,6 +467,17 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
   }
 });
 
+const getOrder = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  validateMongodbId(id);
+  try {
+    const order = await Order.findById(id).populate("products.product");
+    res.json(order);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
 module.exports = {
   createUser,
   loginUserCtrl,
@@ -491,4 +502,5 @@ module.exports = {
   createOrder,
   getOrders,
   updateOrderStatus,
+  getOrder,
 };
